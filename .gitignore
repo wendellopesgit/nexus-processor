@@ -145,7 +145,6 @@ vite.config.ts.timestamp-*
 dump.rdb
 /redis-data/
 
-
 # RabbitMQ files
 *.log
 /rabbitmq-data/

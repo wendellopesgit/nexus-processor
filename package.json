@@ -23,6 +23,7 @@
     "event-processing"
   ],
   "scripts": {
+    "build": "tsc",
     "prepare": "husky",
     "lint": "eslint . --no-warn-ignored --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\""

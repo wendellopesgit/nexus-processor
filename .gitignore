@@ -137,3 +137,12 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Docker database files
+/mongo-data/
+
+# Redis dump files
+dump.rdb
+
+# RabbitMQ files
+*.log

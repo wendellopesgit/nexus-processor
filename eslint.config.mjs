@@ -9,11 +9,9 @@ export default [
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser: tsParser,
-      parserOptions: {
-        project: './tsconfig.json',
-      },
       globals: {
         ...globals.node,
+        ...globals.jest,
       },
     },
     plugins: {
@@ -23,6 +21,14 @@ export default [
       ...tsPlugin.configs['recommended'].rules,
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-console': 'warn',
+    },
+  },
+  {
+    files: ['**/*.test.ts'],
+    languageOptions: {
+      globals: {
+        jest: 'readonly',
+      },
     },
   },
   {

@@ -2,7 +2,11 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@utils/*": ["./utils/*"]
+      "@contexts/*": ["contexts/*"],
+      "@utils/*": ["utils/*"],
+      "@workers/*": ["workers/*"],
+      "@rabbitmq/*": ["rabbitmq/*"],
+      "@tests/*": ["tests/*"]
     }
   }
 }

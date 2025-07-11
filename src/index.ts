@@ -1,5 +1,5 @@
-import { logger } from '@utils/logger.js';
-import RabbitMQConsumer from 'rabbitmq/consumer.js';
+import RabbitMQConsumer from '@rabbitmq/consumer';
+import { logger } from '@utils/logger';
 
 const consumer = new RabbitMQConsumer('my_queue');
 

@@ -1,0 +1,27 @@
+{
+  "name": "nexus-processor",
+  "version": "1.0.0",
+  "description": "Solução técnica para o desafio: Node.JS - Processamento de Eventos em Tempo Real",
+  "main": "index.js",
+  "author": "Wendell Lopes <wls.lopes@gmail.com>",
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/wendellopesgit/nexus-processor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wendellopesgit/nexus-processor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wendellopesgit/nexus-processor/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "keywords": [
+    "challenge",
+    "real-time",
+    "event-processing"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

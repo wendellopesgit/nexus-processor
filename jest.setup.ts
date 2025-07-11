@@ -1,1 +1,1 @@
-// Configuration file for Jest testing framework
+/* Configuration file for Jest testing framework */

@@ -15,6 +15,7 @@ describe('OrderProcessor', () => {
 
   it('should handle order processing error with retry', async () => {
     const mockError = new Error('Processing error');
+
     jest.spyOn(orderProcessor, 'start').mockRejectedValueOnce(mockError);
 
     await orderProcessor.start();

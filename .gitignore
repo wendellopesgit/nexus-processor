@@ -139,12 +139,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Docker database files
-/mongo-data/
-
-# Redis dump files
-dump.rdb
-/redis-data/
+db/
 
 # RabbitMQ files
 *.log
-/rabbitmq-data/

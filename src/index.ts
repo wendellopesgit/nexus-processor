@@ -1,23 +1,24 @@
-import RabbitMQConsumer from '@rabbitmq/consumer';
-import { logger } from '@utils/logger';
-
-const consumer = new RabbitMQConsumer('my_queue');
+import { Container } from '@infra/config/container';
+import { logger } from '@shared/utils/logger';
 
 async function main() {
-  await consumer.connect();
+  try {
+    await Container.initialize();
 
-  await consumer.consume(async (msg) => {
-    if (msg) {
-      logger.info('Received message:', msg.content.toString());
-    }
-  });
+    const orderProcessor = Container.createOrderProcessor();
 
-  setTimeout(async () => {
-    await consumer.close();
-  }, 5000);
+    await orderProcessor.start();
+
+    const server = Container.createServer();
+
+    server.start();
+
+    logger.info('Application started successfully');
+  } catch (error) {
+    logger.error('Error starting application:', error);
+
+    process.exit(1);
+  }
 }
 
-main().catch((error) => {
-  logger.error('Error in main:', error);
-  process.exit(1);
-});
+main();

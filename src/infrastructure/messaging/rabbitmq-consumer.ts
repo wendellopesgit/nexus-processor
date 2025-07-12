@@ -1,43 +1,53 @@
-import { logger } from '@utils/logger';
-import { ChannelModel, ConfirmChannel, connect, ConsumeMessage } from 'amqplib';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { logger } from '@shared/utils/logger';
+import { Channel, ChannelModel, connect, ConsumeMessage } from 'amqplib';
+import { IMessageConsumer } from 'core/ports/messaging';
 
-class RabbitMQConsumer {
+class RabbitMQConsumer implements IMessageConsumer {
   private connection: ChannelModel | null = null;
-  private channel: ConfirmChannel | null = null;
+  private channel: Channel | null = null;
 
-  constructor(private queueName: string) {}
+  constructor(
+    private queueName: string,
+    private connectionUrl: string,
+  ) {}
 
   async connect(): Promise<void> {
     try {
-      this.connection = await connect(process.env.RABBITMQ_URL as string);
-      this.channel = await this.connection.createConfirmChannel();
+      this.connection = await connect(this.connectionUrl);
+      this.channel = await this.connection.createChannel();
 
       await this.channel.assertQueue(this.queueName, { durable: true });
 
       logger.info(`Connected to RabbitMQ and listening to queue: ${this.queueName}`);
     } catch (error) {
       logger.error('Error connecting to RabbitMQ:', error);
+
       throw error;
     }
   }
 
-  async consume(handler: (msg: ConsumeMessage | null) => Promise<void>): Promise<void> {
+  public getChannel(): Channel | null {
+    return this.channel;
+  }
+
+  async consume(handler: (msg: any) => Promise<void>): Promise<void> {
     if (!this.channel) {
       throw new Error('Channel not initialized. Call connect() first.');
     }
 
     await this.channel.consume(
       this.queueName,
-      async (msg) => {
+      async (msg: ConsumeMessage | null) => {
         try {
-          await handler(msg);
-          if (msg && this.channel) {
-            this.channel.ack(msg);
+          if (msg) {
+            await handler(msg);
+            this.channel!.ack(msg);
           }
         } catch (err) {
           logger.error('Error processing message:', err);
-          if (msg && this.channel) {
-            this.channel.nack(msg);
+          if (msg) {
+            this.channel!.nack(msg, false, false);
           }
         }
       },

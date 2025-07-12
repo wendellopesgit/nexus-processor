@@ -1,0 +1,24 @@
+{
+  "exchanges": [
+    {
+      "name": "dlx.exchange",
+      "type": "direct",
+      "durable": true
+    }
+  ],
+  "queues": [
+    {
+      "name": "dlx.queue",
+      "durable": true,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "dlx.exchange",
+      "destination": "dlx.queue",
+      "routing_key": "",
+      "arguments": {}
+    }
+  ]
+}

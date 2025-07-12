@@ -1,4 +1,5 @@
 import { IMessageProducer } from '@core/ports/messaging';
+import { IOrderRepository } from '@core/repositories/order-repository';
 import { logger } from '@shared/utils/logger';
 import { Request, Response } from 'express';
 
@@ -7,7 +8,10 @@ export class OrderController {
   private connectionAttempts: number = 0;
   private readonly maxConnectionAttempts: number = 3;
 
-  constructor(private messageProducer: IMessageProducer) {
+  constructor(
+    private messageProducer: IMessageProducer,
+    private orderRepository: IOrderRepository,
+  ) {
     this.initializeProducer();
   }
 
@@ -79,7 +83,14 @@ export class OrderController {
 
   async getOrderStatus(req: Request, res: Response): Promise<void> {
     try {
-      res.status(200).json({ orderId: req.params.id, status: 'processing' });
+      const order = await this.orderRepository.findById(req.params.id);
+
+      if (!order) {
+        res.status(404).json({ error: 'Order not found' });
+        return;
+      }
+
+      res.status(200).json({ orderId: order.id, status: order.status });
     } catch (error) {
       logger.error('Error getting order status:', error);
 

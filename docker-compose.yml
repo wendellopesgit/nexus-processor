@@ -61,7 +61,6 @@ services:
       MONGO_INITDB_DATABASE: orders
     volumes:
       - mongo-data:/data/db
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     healthcheck:
       test: >
         mongosh --quiet -u root -p nexus-challenge --eval "db.adminCommand('ping')"

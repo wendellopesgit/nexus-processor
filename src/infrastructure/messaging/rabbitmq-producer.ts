@@ -14,6 +14,8 @@ export class RabbitMQProducer implements IMessageProducer {
 
   async connect(): Promise<void> {
     try {
+      const dlxName = `${this.exchangeName}.dlx`;
+
       this.connection = await connect(this.connectionUrl);
       this.channel = await this.connection.createChannel();
 
@@ -21,10 +23,11 @@ export class RabbitMQProducer implements IMessageProducer {
         durable: true,
       });
 
+      await this.channel.assertExchange(dlxName, 'direct', { durable: true });
+
       logger.info(`Connected to RabbitMQ producer on exchange ${this.exchangeName}`);
     } catch (error) {
       logger.error('Error connecting RabbitMQ producer:', error);
-
       throw error;
     }
   }
@@ -34,22 +37,49 @@ export class RabbitMQProducer implements IMessageProducer {
       throw new Error('Channel not initialized. Call connect() first.');
     }
 
-    try {
-      const messageBuffer = Buffer.from(JSON.stringify(message));
-      const sent = this.channel.publish(this.exchangeName, routingKey, messageBuffer, {
-        persistent: true,
-      });
+    const maxRetries = 3;
 
-      if (sent) {
-        logger.debug(`Message published to ${this.exchangeName} with routing key ${routingKey}`);
-      } else {
-        logger.warn(`Message not published to ${this.exchangeName} (backpressure)`);
+    const retryDelay = (attempt: number) => Math.pow(2, attempt) * 1000;
 
-        throw new Error('Failed to publish message due to backpressure');
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const messageBuffer = Buffer.from(JSON.stringify(message));
+        const sent = this.channel.publish(this.exchangeName, routingKey, messageBuffer, {
+          persistent: true,
+        });
+
+        if (sent) {
+          logger.debug(`Message published to ${this.exchangeName} with routing key ${routingKey}`);
+
+          return;
+        } else {
+          logger.warn(`Message not published to ${this.exchangeName} (backpressure)`);
+
+          throw new Error('Failed to publish message due to backpressure');
+        }
+      } catch (error) {
+        if (attempt < maxRetries) {
+          logger.warn(`Retrying message publish (attempt ${attempt + 1}/${maxRetries})...`);
+
+          await new Promise((resolve) => setTimeout(resolve, retryDelay(attempt)));
+        } else {
+          logger.error(
+            'Message failed after maximum retries. Sending to Dead Letter Queue.',
+            error,
+          );
+
+          this.channel.publish(
+            `${this.exchangeName}.dlx`,
+            routingKey,
+            Buffer.from(JSON.stringify(message)),
+            {
+              persistent: true,
+            },
+          );
+
+          throw error;
+        }
       }
-    } catch (error) {
-      logger.error('Error publishing message:', error);
-      throw error;
     }
   }
 

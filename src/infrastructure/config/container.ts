@@ -66,7 +66,7 @@ export class Container {
   static async getOrderController(): Promise<OrderController> {
     const producer = await MessagingFactory.createProducer();
 
-    return new OrderController(producer);
+    return new OrderController(producer, this.orderRepository);
   }
 
   private static getProcessingStrategy(): IProcessingStrategy {

@@ -1,21 +1,40 @@
-import { Container } from '@infra/config/container';
+import { ContainerApplication } from '@infrastructure/config/container';
 import { logger } from '@shared/utils/logger';
+import dotenv from 'dotenv';
+import 'reflect-metadata';
+
+// Carrega variáveis de ambiente
+dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+
+// Tratamento de exceções não tratadas ao longo do processo
+process.on('uncaughtException', (error: Error) => {
+  logger.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason: unknown) => {
+  logger.error('Unhandled Rejection:', reason);
+  process.exit(1);
+});
 
 async function main() {
   try {
-    await Container.initialize();
+    logger.info('Starting application...');
 
-    const orderProcessor = Container.createOrderProcessor();
+    // Inicializa o container de dependências
+    await ContainerApplication.initialize();
 
-    await orderProcessor.start();
+    // Inicia o processador de pedidos
+    await ContainerApplication.createOrderProcessor();
 
-    const server = Container.createServer();
+    // Inicia o servidor HTTP
+    const server = ContainerApplication.createServer();
 
     server.start();
 
-    logger.info('Application started successfully');
+    logger.info(`Application started successfully in ${process.env.NODE_ENV} mode`);
   } catch (error) {
-    logger.error('Error starting application:', error);
+    logger.error('Failed to start application:', error);
 
     process.exit(1);
   }

@@ -1,0 +1,394 @@
+{
+  "info": {
+    "_postman_id": "80157515-3052-469b-8581-8358356690eb",
+    "name": "Nexus Processor",
+    "description": "Testes funcionais para validação do processamento de pedidos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "18695442"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Enviar Pedido Individual",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "",
+              "pm.collectionVariables.set('orderId', response.orderId)"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer\": \"Cliente Teste\",\n  \"items\": [\n    {\n      \"productId\": \"prod-1\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        }
+      },
+      "response": [
+        {
+          "name": "Enviar Pedido Individual",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"order-{{$timestamp}}\",\n  \"customer\": \"Cliente Teste\",\n  \"items\": [\n    {\n      \"productId\": \"prod-1\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          },
+          "status": "Accepted",
+          "code": 202,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "72"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"48-9Cb4wdSkpZzJfmZ5ylkjox9hLtQ\""
+            },
+            {
+              "key": "Date",
+              "value": "Sun, 13 Jul 2025 03:48:04 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"message\": \"Order received for processing\",\n    \"orderId\": \"order-1752378484\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Pedido com exceso de itens",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"order-{{$timestamp}}\",\n  \"customer\": \"Cliente Teste\",\n  \"items\": [\n    {\n      \"productId\": \"prod-1\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-2\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-3\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-4\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-5\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-6\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-7\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-8\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-9\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-10\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    }, {\n      \"productId\": \"prod-11\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        }
+      },
+      "response": [
+        {
+          "name": "Enviar Pedido Individual Copy",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"order-{{$timestamp}}\",\n  \"customer\": \"Cliente Teste\",\n  \"items\": [\n    {\n      \"productId\": \"prod-1\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-2\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-3\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-4\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-5\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-6\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-7\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-8\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-9\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    },\n    {\n      \"productId\": \"prod-10\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    }, {\n      \"productId\": \"prod-11\",\n      \"quantity\": 2,\n      \"price\": 19.99\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "50"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"32-q1nNL/CHsUTYG9MdEV0QvehdbPc\""
+            },
+            {
+              "key": "Date",
+              "value": "Sun, 13 Jul 2025 03:44:40 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"error\": \"Maximum of 10 items per order exceeded\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Enviar Múltiplos Pedidos (Lote)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer\": \"John Doe 2\",\n  \"orders\": [\n    {\n      \"items\": [\n        {\n          \"productId\": \"prod1\",\n          \"quantity\": 2,\n          \"price\": 10.50\n        }\n      ]\n    },\n    {\n      \"items\": [\n        {\n          \"productId\": \"prod2\",\n          \"quantity\": 1,\n          \"price\": 25.00\n        },\n        {\n          \"productId\": \"prod3\",\n          \"quantity\": 3,\n          \"price\": 5.00\n        }\n      ]\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/batch",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "batch"]
+        }
+      },
+      "response": [
+        {
+          "name": "Enviar Múltiplos Pedidos (Lote)",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"John Doe\",\n  \"orders\": [\n    {\n      \"items\": [\n        {\n          \"productId\": \"prod1\",\n          \"quantity\": 2,\n          \"price\": 10.50\n        }\n      ]\n    },\n    {\n      \"items\": [\n        {\n          \"productId\": \"prod2\",\n          \"quantity\": 1,\n          \"price\": 25.00\n        },\n        {\n          \"productId\": \"prod3\",\n          \"quantity\": 3,\n          \"price\": 5.00\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/batch",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "batch"]
+            }
+          },
+          "status": "Accepted",
+          "code": 202,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "114"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"72-GYd4Ipd1OZILzefolV6P4KIkXvY\""
+            },
+            {
+              "key": "Date",
+              "value": "Sun, 13 Jul 2025 04:34:24 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"batchId\": \"batch_1752381264769\",\n    \"orderIds\": [\n        \"ord_1752381264769\",\n        \"ord_1752381264769\"\n    ],\n    \"status\": \"batch_processing\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Consultar Status do Pedido",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/orders/:id/status",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", ":id", "status"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{orderId}}"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Consultar Status do Pedido",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/orders/:id/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{orderId}}"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "22"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"16-PU857yijBg2HpA4WN1nXLGUZt3Q\""
+            },
+            {
+              "key": "Date",
+              "value": "Sun, 13 Jul 2025 04:34:38 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"status\": \"completed\"\n}"
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Configuração pré-request",
+          "pm.collectionVariables.set('timestamp', new Date().getTime());"
+        ],
+        "type": "text/javascript"
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// Testes básicos de resposta",
+          "pm.test(\"Status code is 200 or 202\", function() {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+          "});",
+          "",
+          "pm.test(\"Response time is acceptable\", function() {",
+          "    pm.expect(pm.response.responseTime).to.be.below(500);",
+          "});",
+          "",
+          "pm.test(\"Response has valid JSON\", function() {",
+          "    pm.response.to.have.jsonBody();",
+          "});"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "timestamp",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    }
+  ]
+}

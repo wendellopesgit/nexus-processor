@@ -1,8 +1,6 @@
-# Título do Projeto
-
-Uma breve descrição sobre o que esse projeto faz e para quem ele é
-
 # Nexus Processor Architecture 🚀
+
+Solução técnica para o desafio: Node.JS - Processamento de Eventos em Tempo Real
 
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12-orange)
@@ -89,21 +87,72 @@ npm run test:integration # Integração
 curl http://localhost:3000/api/health
 ```
 
-## 📡 Endpoints API
+# Nexus Processor - Postman Collection 🚀
 
-### Pedidos
+![Postman](https://img.shields.io/badge/Postman-Collection-orange)
+![API Testing](https://img.shields.io/badge/Testing-API-blue)
 
-| Método | Endpoint                 | Body Example                                                  | Status Codes                        |
-| ------ | ------------------------ | ------------------------------------------------------------- | ----------------------------------- |
-| POST   | `/api/orders`            | `json<br>{<br>  "customer": "...",<br>  "items": [...]<br>}`  | 202 (Accepted)<br>400 (Bad Request) |
-| POST   | `/api/orders/batch`      | `json<br>{<br>  "customer": "...",<br>  "orders": [...]<br>}` | 202 (Accepted)<br>400 (Bad Request) |
-| GET    | `/api/orders/:id/status` | -                                                             | 200 (OK)<br>404 (Not Found)         |
+Coleção completa para testar todos os endpoints da API Nexus Processor.
 
-### Monitoramento
+## 📦 O que contém
 
-| Método | Endpoint      | Descrição           |
-| ------ | ------------- | ------------------- |
-| GET    | `/api/health` | Status dos serviços |
+- Testes funcionais para validação do processamento de pedidos
+- Fluxos completos de:
+  - Health Check
+  - Pedidos individuais
+  - Processamento em lote
+  - Consulta de status
+
+## 🔗 Como usar
+
+1. Importe o arquivo `Nexus Processor.postman_collection.json` no Postman
+2. Configure as variáveis de ambiente:
+   ```json
+   {
+     "base_url": "http://localhost:3000",
+     "timestamp": "",
+     "orderId": ""
+   }
+   ```
+
+## 🔄 Fluxo de Teste
+
+1. **Health Check**  
+   Verifica disponibilidade da API (`GET /api/health`)
+
+2. **Pedido Individual**
+
+   ```json
+   POST /api/orders
+   {
+     "customer": "Cliente Teste",
+     "items": [{
+       "productId": "prod-1",
+       "quantity": 2,
+       "price": 19.99
+     }]
+   }
+   ```
+
+3. **Pedido com Excesso de Itens**  
+   Testa validação de limite (máx. 10 itens)
+
+4. **Processamento em Lote**
+
+   ```json
+   POST /api/orders/batch
+   {
+     "customer": "John Doe",
+     "orders": [
+       { "items": [...] },
+       { "items": [...] }
+     ]
+   }
+   ```
+
+5. **Consulta de Status**  
+   Usa o `orderId` gerado anteriormente:  
+   `GET /api/orders/{{orderId}}/status`
 
 ## 📊 Estratégia de Resiliência
 

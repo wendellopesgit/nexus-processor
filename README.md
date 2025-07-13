@@ -87,23 +87,7 @@ npm run test:integration # Integração
 curl http://localhost:3000/api/health
 ```
 
-# Nexus Processor - Postman Collection 🚀
-
-![Postman](https://img.shields.io/badge/Postman-Collection-orange)
-![API Testing](https://img.shields.io/badge/Testing-API-blue)
-
-Coleção completa para testar todos os endpoints da API Nexus Processor.
-
-## 📦 O que contém
-
-- Testes funcionais para validação do processamento de pedidos
-- Fluxos completos de:
-  - Health Check
-  - Pedidos individuais
-  - Processamento em lote
-  - Consulta de status
-
-## 🔗 Como usar
+## 🔗 Postman Collection
 
 1. Importe o arquivo `Nexus Processor.postman_collection.json` no Postman
 2. Configure as variáveis de ambiente:

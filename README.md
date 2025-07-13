@@ -1,76 +1,126 @@
-# Nexus Processor Architecture
+# Título do Projeto
 
-Solução técnica para o desafio: Node.JS - Processamento de Eventos em Tempo Real
+Uma breve descrição sobre o que esse projeto faz e para quem ele é
 
-## Contexto Funcional
+# Nexus Processor Architecture 🚀
 
-Este sistema simula um processador de pedidos de e-commerce que:
+![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12-orange)
+![MongoDB](https://img.shields.io/badge/MongoDB-6.0-green)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
 
-1. Recebe pedidos individuais via API ou em lote
-2. Processa os pedidos de forma assíncrona via RabbitMQ
-3. Atualiza estoque e notifica clientes (observers)
-4. Implementa resiliência com retry e DLQ
+Solução técnica para processamento de eventos em tempo real com Node.js, RabbitMQ e MongoDB.
 
-## Arquitetura
+## 📋 Contexto Funcional
 
-### Clean Architecture Layers
+Sistema de processamento de pedidos de e-commerce com:
 
-1. **Core**: Contém as regras de negócio, entidades e casos de uso
-2. **Infrastructure**: Implementações concretas de bancos de dados, mensageria, etc.
-3. **Interfaces**: Controladores, workers e pontos de entrada da aplicação
+✔️ Recebimento de pedidos individuais ou em lote  
+✔️ Processamento assíncrono via RabbitMQ  
+✔️ Atualização de estoque e notificação de clientes  
+✔️ Mecanismos de resiliência (retry + DLQ)
 
-### Design Patterns Implementados
+## 🏗️ Arquitetura
 
-1. **Observer**: Para notificação de eventos no sistema (EventBus)
-2. **Dependency Injection**: Para inversão de dependência (ContainerApplication)
-3. **Factory**: Para criação de instâncias de objetos complexos
+### Camadas (Clean Architecture)
 
-## Fluxo de Processamento
+| Camada         | Responsabilidade              | Componentes Principais      |
+| -------------- | ----------------------------- | --------------------------- |
+| **Core**       | Regras de negócio e entidades | Order, EventBus, Observers  |
+| **Infra**      | Implementações concretas      | RabbitMQ, MongoDB, Express  |
+| **Interfaces** | Pontos de entrada             | API REST, Message Consumers |
 
-1. Mensagem é recebida do RabbitMQ
-2. OrderProcessor inicia o processamento
-3. RetryHandler gerencia tentativas em caso de falha
-4. ProcessOrderUseCase executa a lógica de negócio
-5. Eventos são disparados para observers registrados
+### Padrões de Projeto
 
-## Configuração
+| Padrão                   | Aplicação                         | Benefícios                       |
+| ------------------------ | --------------------------------- | -------------------------------- |
+| **Observer**             | Notificação de eventos (EventBus) | Desacoplamento entre componentes |
+| **Dependency Injection** | Injeção de dependências           | Testabilidade e flexibilidade    |
 
-Variáveis de ambiente necessárias:
+## 🔄 Fluxo de Mensagens
 
-- `RABBITMQ_URL`: URL de conexão com o RabbitMQ
-- `MONGO_URL`: URL de conexão com o MongoDB
+```mermaid
+sequenceDiagram
+    participant Cliente
+    participant API
+    participant RabbitMQ
+    participant Processor
+    participant MongoDB
+    participant EventBus
 
-## Estratégia de Retry
+    Cliente->>API: POST /api/orders
+    API->>RabbitMQ: Publica mensagem
+    RabbitMQ->>Processor: Consome mensagem
+    Processor->>MongoDB: Atualiza status
+    Processor->>EventBus: Notifica eventos
+    EventBus->>Inventory: Atualiza estoque
+    EventBus->>Notifier: Envia email
+```
 
-O sistema implementa uma estratégia de retry com backoff exponencial:
+Visualiza o diagrama em: https://www.mermaidchart.com/
 
-1. Primeira falha: 1 segundo de delay
-2. Segunda falha: 2 segundos de delay
-3. Terceira falha: 4 segundos de delay
-
-Após 3 tentativas (configurável), a mensagem é enviada para a Dead Letter Queue (DLQ).
-
-Configurações:
-
-- `RETRY_MAX_ATTEMPTS`: Número máximo de tentativas (padrão: 3)
-- `RETRY_INITIAL_DELAY_MS`: Delay inicial em ms (padrão: 1000)
-- `RETRY_BACKOFF_FACTOR`: Fator de multiplicação (padrão: 2)
-
-## Execução
+## 🛠️ Configuração
 
 ```bash
-# Desenvolvimento
-npm run dev (Comentar o trecho "app" no docker-compose.yml)
+# Variáveis obrigatórias
+RABBITMQ_URL="amqp://user:pass@host:port/vhost"
+MONGO_URL="mongodb://user:pass@host:port/db?authSource=admin"
 
-# Produção
+# Configurações de resiliência (opcionais)
+RETRY_MAX_ATTEMPTS=3       # Tentativas antes de DLQ
+RETRY_INITIAL_DELAY_MS=1000 # Delay inicial em ms
+RETRY_BACKOFF_FACTOR=2     # Fator exponencial
+```
+
+## 🚀 Execução
+
+```bash
+# Ambiente de desenvolvimento
+npm run dev
+
+# Produção com Docker
 docker compose up -d --build
 
 # Testes
-npm test
+npm test                # Unitários
+npm run test:integration # Integração
 
-# Endpoints
-POST /api/orders: Cria um novo pedido
-POST /api/orders/batch: Processa um lote de pedidos
-GET /api/orders/:id/status: Consulta status de um pedido
-GET /api/health: Health check
+# Health Check
+curl http://localhost:3000/api/health
 ```
+
+## 📡 Endpoints API
+
+### Pedidos
+
+| Método | Endpoint                 | Body Example                                                  | Status Codes                        |
+| ------ | ------------------------ | ------------------------------------------------------------- | ----------------------------------- |
+| POST   | `/api/orders`            | `json<br>{<br>  "customer": "...",<br>  "items": [...]<br>}`  | 202 (Accepted)<br>400 (Bad Request) |
+| POST   | `/api/orders/batch`      | `json<br>{<br>  "customer": "...",<br>  "orders": [...]<br>}` | 202 (Accepted)<br>400 (Bad Request) |
+| GET    | `/api/orders/:id/status` | -                                                             | 200 (OK)<br>404 (Not Found)         |
+
+### Monitoramento
+
+| Método | Endpoint      | Descrição           |
+| ------ | ------------- | ------------------- |
+| GET    | `/api/health` | Status dos serviços |
+
+## 📊 Estratégia de Resiliência
+
+```mermaid
+graph LR
+    A[Request] --> B{Sucesso?}
+    B -->|Sim| C[Processa]
+    B -->|Não| D{Contagem < 3?}
+    D -->|Sim| E[Espera backoff]
+    E --> F[Retry]
+    D -->|Não| G[DLQ]
+```
+
+| Tentativa | Delay | Ação                |
+| --------- | ----- | ------------------- |
+| 1         | 1s    | Retry imediato      |
+| 2         | 2s    | Backoff exponencial |
+| 3         | 4s    | Envia para DLQ      |
+
+Visualiza o diagrama em: https://www.mermaidchart.com/

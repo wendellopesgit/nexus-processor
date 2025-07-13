@@ -40,34 +40,6 @@ export class OrderService {
     }
   }
 
-  async orderProcessor(createDto: CreateOrderDto): Promise<OrderResponseDto> {
-    try {
-      if (createDto.items.length > 10) {
-        throw new Error('Maximum of 10 items per order exceeded');
-      }
-
-      const order = Order.create({
-        id: createDto?.id || this.generateOrderId(),
-        customer: createDto.customer,
-        items: createDto.items,
-      });
-
-      await this.orderRepository.save(order);
-
-      await this.messageProducer.publish('order_created', {
-        orderId: order.id,
-        customer: order.customer,
-        total: order.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      });
-
-      return OrderResponseDto.fromDomain(order);
-    } catch (error) {
-      logger.error('Order creation failed:', error);
-
-      throw error;
-    }
-  }
-
   async getOrderById(id: string): Promise<OrderResponseDto> {
     const order = await this.orderRepository.findById(id);
 

@@ -61,6 +61,7 @@ describe('OrderBatchService', () => {
       ]);
 
       const dbError = new Error('Database error');
+
       mockOrderRepository.saveBatch.mockRejectedValueOnce(dbError);
 
       await expect(service.processBatch(batchDto)).rejects.toThrow(dbError);

@@ -20,6 +20,7 @@ export class RabbitMQRetryHandler implements IRetryHandler {
   async setup(channel: Channel): Promise<void> {
     try {
       const dlxExchange = 'global.dlx';
+
       await channel.assertExchange(dlxExchange, 'direct', { durable: true });
       await channel.assertQueue('global.dlq', { durable: true });
       await channel.bindQueue('global.dlq', dlxExchange, '');
@@ -46,11 +47,14 @@ export class RabbitMQRetryHandler implements IRetryHandler {
 
       if (retryCount >= this.maxRetries) {
         await this.sendToDlx(channel, msg);
+
         logger.error(`Max retries (${this.maxRetries}) reached for message`);
+
         return;
       }
 
       await this.retryMessage(channel, msg, queueName, retryCount);
+
       logger.warn(`Message requeued for retry (${retryCount + 1}/${this.maxRetries})`);
     }
   }

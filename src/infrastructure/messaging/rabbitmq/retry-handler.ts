@@ -39,6 +39,7 @@ export class RabbitMQRetryHandler implements IRetryHandler {
   ): Promise<void> {
     try {
       await handler();
+      channel.ack(msg);
     } catch (error) {
       logger.error(`Error processing message from queue ${queueName}:`, error);
 

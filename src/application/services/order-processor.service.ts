@@ -19,10 +19,9 @@ export class OrderProcessorService {
       if (!msg) return;
 
       const channel = this.consumer.getChannel();
+      const order = JSON.parse(msg.content.toString());
 
       try {
-        const order = JSON.parse(msg.content.toString());
-
         await this.retryHandler.handleRetry(
           channel,
           msg,
@@ -31,7 +30,6 @@ export class OrderProcessorService {
         );
       } catch (error) {
         logger.error('Order processing failed:', error);
-
         channel.nack(msg, false, false);
       }
     });
@@ -41,19 +39,19 @@ export class OrderProcessorService {
     try {
       logger.info(`Starting processing for order ${order.id}`);
 
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-
       await this.orderRepository.updateOrderStatus(order.id, 'completed');
 
       logger.info(`Order: ${order.id} updated with success!`);
 
       await this.eventBus.notify('order_processed', order);
-
-      logger.info('Order update status notified to others services!');
     } catch (error) {
-      await this.orderRepository.updateOrderStatus(order.id, 'failed');
+      if (error instanceof Error) {
+        const errorMessage = `Order processing failed for order ${order.id}: ${error.message}`;
 
-      logger.error(`Error processing order ${order.id}:`, error);
+        logger.error(errorMessage, error);
+      }
+
+      await this.orderRepository.updateOrderStatus(order.id, 'failed');
 
       throw error;
     }

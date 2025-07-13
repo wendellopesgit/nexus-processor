@@ -1,3 +1,4 @@
+import { OrderBatchService } from '@application/services/order-batch.service';
 import { OrderProcessorService } from '@application/services/order-processor.service';
 import { OrderService } from '@application/services/order.service';
 import { CustomNotifierObserver } from '@core/patterns/observer/customer-notifier.observer';
@@ -71,9 +72,14 @@ export class ContainerApplication {
     return new OrderService(this.orderRepository, producer);
   }
 
-  static createServer(): ExpressServer {
-    const orderController = this.getOrderService();
+  static getOrderBatchService(): OrderBatchService {
+    return new OrderBatchService(this.orderRepository, this.producer);
+  }
 
-    return new ExpressServer(orderController);
+  static createServer(): ExpressServer {
+    const orderService = this.getOrderService();
+    const orderBatchService = this.getOrderBatchService();
+
+    return new ExpressServer(orderService, orderBatchService);
   }
 }

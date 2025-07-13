@@ -23,7 +23,6 @@ const config: Config.InitialOptions = {
     },
   },
   testMatch: ['**/*.test.ts'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',

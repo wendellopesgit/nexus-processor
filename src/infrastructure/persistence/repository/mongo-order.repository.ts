@@ -92,4 +92,29 @@ export class MongoOrderRepository implements IOrderRepository {
       throw error;
     }
   }
+
+  async saveBatch(orders: Order[]): Promise<void> {
+    try {
+      const operations = orders.map((order) => ({
+        updateOne: {
+          filter: { id: order.id },
+          update: {
+            $set: {
+              ...order,
+              updatedAt: new Date(),
+            },
+          },
+          upsert: true,
+        },
+      }));
+
+      await this.model.bulkWrite(operations);
+
+      logger.info(`Saved batch of ${orders.length} orders to database`);
+    } catch (error) {
+      logger.error('Error saving orders batch:', error);
+
+      throw error;
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { OrderBatchService } from '@application/services/order-batch.service';
 import { OrderService } from '@application/services/order.service';
 import { logger } from '@shared/utils/logger';
 import express from 'express';
@@ -10,7 +11,10 @@ export class ExpressServer {
   private app: express.Application;
   private port: number;
 
-  constructor(private readonly orderService: OrderService) {
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly orderBatchService: OrderBatchService,
+  ) {
     this.app = express();
     this.port = Number(process.env.PORT || 3000);
 
@@ -21,7 +25,7 @@ export class ExpressServer {
 
   private setupRoutes(): void {
     this.app.use('/api', createHealthRoutes());
-    this.app.use('/api', createOrderRoutes(this.orderService));
+    this.app.use('/api', createOrderRoutes(this.orderService, this.orderBatchService));
   }
 
   private setupMiddlewares(): void {

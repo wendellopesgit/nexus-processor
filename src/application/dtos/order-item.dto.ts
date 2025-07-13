@@ -18,7 +18,7 @@ export class OrderItemDto {
       return { error: 'Invalid quantity' };
     }
 
-    if (typeof data.unitPrice !== 'number' || data.unitPrice <= 0) {
+    if (typeof data.price !== 'number' || data.price <= 0) {
       return { error: 'Invalid price' };
     }
 
@@ -26,7 +26,7 @@ export class OrderItemDto {
       dto: new OrderItemDto(
         data.productId,
         Math.floor(data.quantity),
-        parseFloat(data.unitPrice.toFixed(2)),
+        parseFloat(data.price.toFixed(2)),
       ),
     };
   }

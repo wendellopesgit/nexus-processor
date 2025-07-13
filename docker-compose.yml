@@ -15,6 +15,8 @@ services:
       - RETRY_MAX_ATTEMPTS=3
       - RETRY_INITIAL_DELAY_MS=1000
       - RETRY_BACKOFF_FACTOR=2
+      - BATCH_SIZE=10
+      - BATCH_TIMEOUT_MS=5000
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -49,6 +51,19 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq
     restart: on-failure
 
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
   mongo:
     container_name: mongo-db
     image: mongo:5.0
@@ -74,4 +89,6 @@ volumes:
   mongo-data:
     driver: local
   rabbitmq-data:
+    driver: local
+  redis-data:
     driver: local

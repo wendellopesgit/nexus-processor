@@ -138,8 +138,10 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Docker database files
-db/
+# Docker volumes
+mongo-data/
+rabbitmq-data/
+redis-data/
 
 # RabbitMQ files
 *.log

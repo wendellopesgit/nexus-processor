@@ -3,9 +3,10 @@
     "baseUrl": "./src",
     "paths": {
       "@core/*": ["core/*"],
-      "@infra/*": ["infrastructure/*"],
+      "@shared/*": ["shared/*"],
       "@interfaces/*": ["interfaces/*"],
-      "@shared/*": ["shared/*"]
+      "@application/*": ["application/*"],
+      "@infrastructure/*": ["infrastructure/*"]
     }
   }
 }

@@ -8,8 +8,8 @@ const config: Config.InitialOptions = {
   moduleNameMapper: {
     '^@core/(.*)$': '<rootDir>/src/core/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
-    '^@infra/(.*)$': '<rootDir>/src/infrastructure/$1',
-    '^@interfaces/(.*)$': '<rootDir>/src/interfaces/$1',
+    '^@infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
+    '^@application/(.*)$': '<rootDir>/src/application/$1',
   },
   collectCoverage: true,
   coverageDirectory: 'coverage',

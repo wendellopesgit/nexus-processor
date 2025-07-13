@@ -1,36 +1,32 @@
-import { EventBus, InventoryObserver, OrderStatusObserver } from '@core/patterns/observer';
-import {
-  BatchProcessingStrategy,
-  IProcessingStrategy,
-  PriorityProcessingStrategy,
-  StandardProcessingStrategy,
-} from '@core/patterns/strategy';
-import { ProcessOrderUseCase } from '@core/use-cases/process-order';
-import { OrderController } from '@infra/controllers/order-controller';
-import { OrderProcessor } from '@infra/controllers/order-processor';
-import { MessagingFactory } from '@infra/factories/messaging-factory';
-import RabbitMQConsumer from '@infra/messaging/rabbitmq-consumer';
-import { RabbitMQProducer } from '@infra/messaging/rabbitmq-producer';
-import { RetryHandler } from '@infra/messaging/retry-handler';
-import { MongoOrderRepository } from '@infra/persistence/mongo-order-repository';
-import { Server } from '@interfaces/server';
+import { OrderProcessorService } from '@application/services/order-processor.service';
+import { OrderService } from '@application/services/order.service';
+import { CustomNotifierObserver } from '@core/patterns/observer/customer-notifier.observer';
+import { EventBus } from '@core/patterns/observer/event-bus';
+import { InventoryObserver } from '@core/patterns/observer/inventory.observer';
+import { RabbitMQConsumer } from '@infrastructure/messaging/rabbitmq/consumer';
+import { RabbitMQProducer } from '@infrastructure/messaging/rabbitmq/producer';
+import { RabbitMQRetryHandler } from '@infrastructure/messaging/rabbitmq/retry-handler';
+import { MongoOrderRepository } from '@infrastructure/persistence/repository/mongo-order.repository';
+import { ExpressServer } from '@infrastructure/server/express/server';
 import { logger } from '@shared/utils/logger';
 import mongoose from 'mongoose';
 
-export class Container {
+export class ContainerApplication {
   private static eventBus: EventBus;
   private static producer: RabbitMQProducer;
   private static orderRepository: MongoOrderRepository;
 
   static async initialize(): Promise<void> {
-    this.eventBus = new EventBus();
+    this.producer = new RabbitMQProducer('orders', process.env.RABBITMQ_URL as string);
     this.orderRepository = new MongoOrderRepository();
-
-    this.producer = new RabbitMQProducer('orders_exchange', process.env.RABBITMQ_URL as string);
 
     await this.producer.connect();
 
-    this.eventBus.subscribe('order_processed', new OrderStatusObserver());
+    // Inicialização do EventBus (Para eventos dentro da aplicação)
+    this.eventBus = new EventBus();
+
+    // Inscrição de observers no EventBus para escutar atualização dos pedidos
+    this.eventBus.subscribe('order_processed', new CustomNotifierObserver());
     this.eventBus.subscribe('order_processed', new InventoryObserver());
 
     try {
@@ -44,41 +40,40 @@ export class Container {
     }
   }
 
-  static createOrderProcessor(): OrderProcessor {
+  static async createOrderProcessor(): Promise<void> {
     const consumer = new RabbitMQConsumer('orders', process.env.RABBITMQ_URL!);
-    const retryHandler = new RetryHandler();
 
-    const strategy = this.getProcessingStrategy();
+    await consumer.connect();
 
-    const processOrderUseCase = new ProcessOrderUseCase(
-      this.orderRepository,
+    const channel = consumer.getChannel();
+
+    if (!channel) {
+      throw new Error('Failed to get channel from consumer');
+    }
+
+    const retryHandler = new RabbitMQRetryHandler();
+
+    await retryHandler.setup(channel);
+
+    const orderProcessor = new OrderProcessorService(
       this.eventBus,
-      strategy,
+      this.orderRepository,
+      consumer,
+      retryHandler,
     );
 
-    return new OrderProcessor(consumer, retryHandler, processOrderUseCase, 'orders');
+    orderProcessor.execute();
   }
 
-  static createServer(): Server {
-    return new Server(Number(process.env.PORT || 3000));
+  static getOrderService(): OrderService {
+    const producer = new RabbitMQProducer('orders', process.env.RABBITMQ_URL as string);
+
+    return new OrderService(this.orderRepository, producer);
   }
 
-  static async getOrderController(): Promise<OrderController> {
-    const producer = await MessagingFactory.createProducer();
+  static createServer(): ExpressServer {
+    const orderController = this.getOrderService();
 
-    return new OrderController(producer, this.orderRepository);
-  }
-
-  private static getProcessingStrategy(): IProcessingStrategy {
-    const strategyType = process.env.PROCESSING_STRATEGY || 'standard';
-
-    switch (strategyType) {
-      case 'priority':
-        return new PriorityProcessingStrategy();
-      case 'batch':
-        return new BatchProcessingStrategy();
-      default:
-        return new StandardProcessingStrategy();
-    }
+    return new ExpressServer(orderController);
   }
 }

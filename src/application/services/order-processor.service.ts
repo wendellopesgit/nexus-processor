@@ -39,6 +39,9 @@ export class OrderProcessorService {
     try {
       logger.info(`Starting processing for order ${order.id}`);
 
+      // simula a leitura e processamento da fila
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+
       await this.orderRepository.updateOrderStatus(order.id, 'completed');
 
       logger.info(`Order: ${order.id} updated with success!`);

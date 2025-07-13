@@ -22,11 +22,13 @@ Sistema de processamento de pedidos de e-commerce com:
 
 ### Camadas (Clean Architecture)
 
-| Camada         | Responsabilidade              | Componentes Principais      |
-| -------------- | ----------------------------- | --------------------------- |
-| **Core**       | Regras de negócio e entidades | Order, EventBus, Observers  |
-| **Infra**      | Implementações concretas      | RabbitMQ, MongoDB, Express  |
-| **Interfaces** | Pontos de entrada             | API REST, Message Consumers |
+| Camada          | Responsabilidade              | Componentes Principais     |
+| --------------- | ----------------------------- | -------------------------- |
+| **Core**        | Regras de negócio e entidades | Order, EventBus, Observers |
+| **Infra**       | Implementações concretas      | RabbitMQ, MongoDB, Express |
+| **Application** | Serviços da Aplicação         | DTO's, Services            |
+| **Shared**      | Recursos compartilhados       | Errors, Types, Utils       |
+| **Tests**       | Testes unitários da Aplicação | Unit tests                 |
 
 ### Padrões de Projeto
 
@@ -76,12 +78,12 @@ RETRY_BACKOFF_FACTOR=2     # Fator exponencial
 # Ambiente de desenvolvimento
 npm run dev
 
-# Produção com Docker
-docker compose up -d --build
+# Produção com Docker (Incluído a remoção dos serviços ativos)
+docker compose down -v && docker compose up -d --build
 
 # Testes
-npm test                # Unitários
-npm run test:integration # Integração
+npm test                  # Unitários
+npm run test:integration  # Integração
 
 # Health Check
 curl http://localhost:3000/api/health

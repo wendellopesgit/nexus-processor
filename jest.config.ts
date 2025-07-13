@@ -12,6 +12,17 @@ const config: Config.InitialOptions = {
     '^@application/(.*)$': '<rootDir>/src/application/$1',
   },
   collectCoverage: true,
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/coverage/',
+    '/__tests__/',
+    '/interfaces/',
+    '\\.dto\\.ts$',
+    '\\.config\\.ts$',
+    '\\.interface\\.ts$',
+    'index.ts',
+  ],
   coverageDirectory: 'coverage',
   coverageReporters: ['json', 'text', 'lcov', 'clover', 'json-summary'],
   coverageThreshold: {

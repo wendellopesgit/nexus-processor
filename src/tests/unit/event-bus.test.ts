@@ -27,4 +27,22 @@ describe('EventBus', () => {
 
     expect(mockObserver.update).not.toHaveBeenCalled();
   });
+
+  describe('notify', () => {
+    it('should handle observer update errors', async () => {
+      const errorObserver = {
+        update: jest.fn().mockRejectedValue(new Error('Observer error')),
+      };
+
+      eventBus.subscribe('test_event', errorObserver);
+
+      await eventBus.notify('test_event', { data: 'test' });
+
+      expect(errorObserver.update).toHaveBeenCalled();
+    });
+
+    it('should not throw when notifying with no observers', async () => {
+      await expect(eventBus.notify('no_observers', {})).resolves.not.toThrow();
+    });
+  });
 });

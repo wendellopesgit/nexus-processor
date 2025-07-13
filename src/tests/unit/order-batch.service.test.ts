@@ -53,4 +53,30 @@ describe('OrderBatchService', () => {
       expect(mockMessageProducer.publish).toHaveBeenCalledTimes(15);
     });
   });
+
+  describe('processBatch error handling', () => {
+    it('should handle repository saveBatch errors', async () => {
+      const batchDto = new OrderBatchDto('customer1', [
+        { items: [{ productId: '1', quantity: 1, price: 10 }] },
+      ]);
+
+      const dbError = new Error('Database error');
+      mockOrderRepository.saveBatch.mockRejectedValueOnce(dbError);
+
+      await expect(service.processBatch(batchDto)).rejects.toThrow(dbError);
+      expect(mockOrderRepository.saveBatch).toHaveBeenCalled();
+    });
+
+    it('should handle message producer publish errors', async () => {
+      const batchDto = new OrderBatchDto('customer1', [
+        { items: [{ productId: '1', quantity: 1, price: 10 }] },
+      ]);
+
+      const publishError = new Error('Publish error');
+      mockMessageProducer.publish.mockRejectedValueOnce(publishError);
+
+      await expect(service.processBatch(batchDto)).rejects.toThrow(publishError);
+      expect(mockMessageProducer.publish).toHaveBeenCalled();
+    });
+  });
 });

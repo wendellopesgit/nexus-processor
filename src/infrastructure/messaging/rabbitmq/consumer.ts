@@ -77,20 +77,21 @@ export class RabbitMQConsumer implements IMessageConsumer {
       throw new Error('Consumer not connected');
     }
 
-    const consumeHandler = async (msg: ConsumeMessage | null) => {
-      if (!msg) return;
+    await this.channel.consume(
+      this.queueName,
+      async (msg: ConsumeMessage | null) => {
+        if (!msg) return;
 
-      try {
-        await handler(msg);
-        this.channel!.ack(msg);
-      } catch (error) {
-        logger.error('Error processing message:', error);
-
-        this.channel!.nack(msg, false, false);
-      }
-    };
-
-    await this.channel.consume(this.queueName, consumeHandler, { noAck: false });
+        try {
+          await handler(msg);
+          this.channel!.ack(msg);
+        } catch (error) {
+          logger.error('Error processing message:', error);
+          this.channel!.nack(msg, false, false);
+        }
+      },
+      { noAck: false },
+    );
   }
 
   async close(): Promise<void> {

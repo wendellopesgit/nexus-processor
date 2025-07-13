@@ -41,22 +41,36 @@ export class OrderBatchService {
     subBatch: Array<{ items: any[] }>,
     orderIds: string[],
   ): Promise<void> {
-    const orders: Order[] = [];
+    const controller = new AbortController();
+    const { signal } = controller;
 
-    for (const orderData of subBatch) {
-      const order = Order.create({
-        customer,
-        items: orderData.items,
-      });
+    const timeout = setTimeout(
+      () => controller.abort(new Error('Batch processing timeout')),
+      Number(process.env.BATCH_TIMEOUT_MS),
+    );
 
-      orders.push(order);
+    try {
+      const orders: Order[] = [];
 
-      orderIds.push(order.id);
+      for (const orderData of subBatch) {
+        if (signal.aborted) {
+          throw signal.reason;
+        }
+
+        const order = Order.create({
+          customer,
+          items: orderData.items,
+        });
+
+        orders.push(order);
+        orderIds.push(order.id);
+      }
+
+      await this.saveOrdersBatch(orders);
+      await this.publishOrdersBatch(orders);
+    } finally {
+      clearTimeout(timeout);
     }
-
-    await this.saveOrdersBatch(orders);
-
-    await this.publishOrdersBatch(orders);
   }
 
   private async saveOrdersBatch(orders: Order[]): Promise<void> {

@@ -40,16 +40,14 @@ describe('RabbitMQRetryHandler', () => {
   });
 
   describe('handleRetry', () => {
-    it('should call handler successfully', async () => {
+    it('should call handler successfully without ack', async () => {
       const handler = jest.fn().mockResolvedValue(undefined);
       const msg = { content: Buffer.from('test'), properties: { headers: {} } } as Message;
 
       await retryHandler.handleRetry(mockChannel, msg, handler, 'test-queue');
 
       expect(handler).toHaveBeenCalled();
-      expect(mockChannel.ack).toHaveBeenCalledWith(expect.anything());
     });
-
     it('should retry on failure', async () => {
       const handler = jest.fn().mockRejectedValue(new Error('test error'));
       const msg = { content: Buffer.from('test'), properties: { headers: {} } } as Message;

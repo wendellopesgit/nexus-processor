@@ -59,7 +59,7 @@ sequenceDiagram
 
 Visualiza o diagrama em: https://www.mermaidchart.com/
 
-## 🛠️ Configuração
+## 🛠️ Configuração do ambiente
 
 ```bash
 # Variáveis obrigatórias
@@ -79,6 +79,11 @@ RETRY_BACKOFF_FACTOR=2     # Fator exponencial
 3. Postman.
 4. Git.
 5. VSCode.
+
+## 🛠️ Configuração do projeto
+
+1. npm install
+2. npm run prepare (script para instalar o husk)
 
 ## 🚀 Execução
 

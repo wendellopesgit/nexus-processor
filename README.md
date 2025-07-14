@@ -92,7 +92,8 @@ RETRY_BACKOFF_FACTOR=2     # Fator exponencial
 npm run dev
 
 # Produção com Docker (Incluído a remoção dos serviços ativos)
-docker compose down -v && docker compose up -d --build
+Inicialização: docker compose down -v
+Paralização:   docker compose up -d --build
 
 # Testes
 npm test                  # Unitários

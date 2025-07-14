@@ -72,6 +72,14 @@ RETRY_INITIAL_DELAY_MS=1000 # Delay inicial em ms
 RETRY_BACKOFF_FACTOR=2     # Fator exponencial
 ```
 
+## 🚀 Ferramentas usadas no projeto.
+
+1. Docker e Docker Compose / Docker Desktop (Windows).
+2. MongoDB Compass.
+3. Postman.
+4. Git.
+5. VSCode.
+
 ## 🚀 Execução
 
 ```bash

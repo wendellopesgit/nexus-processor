@@ -1,6 +1,6 @@
 # Nexus Processor Architecture 🚀
 
-Solução técnica para o desafio: Node.JS - Processamento de Eventos em Tempo Real
+Solução técnica para o teste: Node.JS - Processamento de Eventos em Tempo Real
 
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12-orange)
